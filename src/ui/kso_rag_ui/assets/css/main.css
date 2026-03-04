@@ -137,7 +137,7 @@ td {
 }
 
 mark {
-  background-color: #10b981;
+  background-color: #38bdf8;
 }
 
 /* clpse */
@@ -331,10 +331,6 @@ pdfjs-viewer-element {
   top: 4px;
 } */
 
-#suggest-chat-checkbox {
-  position: relative;
-  top: 4px;
-}
 
 .switch input {
   position: absolute;
@@ -346,7 +342,7 @@ pdfjs-viewer-element {
   /* 1 */
   height: 1em;
   width: 2em;
-  background: #8f8f8f;
+  background: #94a3b8;
   border-radius: 1em;
   position: relative;
   top: 2px;
@@ -368,11 +364,11 @@ pdfjs-viewer-element {
   -webkit-transform: translate3d(100%, 0, 0);
   -moz-transform: translate3d(100%, 0, 0);
   transform: translate3d(100%, 0, 0);
-  background: #12df9a;
+  background: #FFF;
 }
 
 .switch:has(> input:checked) {
-  background: #0c895f;
+  background: #0ea5e9;
 }
 
 /* Bot animation */
@@ -396,7 +392,7 @@ details.evidence {
 }
 
 .message a.citation {
-  color: #10b981;
+  color: #0ea5e9;
   text-decoration: none;
 }
 

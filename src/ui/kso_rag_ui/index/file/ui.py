@@ -300,12 +300,7 @@ class FileIndexPage(BasePage):
                         if msg:
                             gr.Markdown(msg)
 
-                    with gr.Tab("Use Web Links"):
-                        self.urls = gr.Textbox(
-                            label="Input web URLs",
-                            lines=8,
-                        )
-                        gr.Markdown("(separated by new line)")
+                    self.urls = gr.State(value="")
 
                     with gr.Accordion("Advanced indexing options", open=False):
                         with gr.Row():
@@ -876,10 +871,6 @@ class FileIndexPage(BasePage):
                 ],
                 outputs=[self.upload_result, self.upload_info],
                 concurrency_limit=20,
-            )
-            .then(
-                fn=lambda: gr.update(value=""),
-                outputs=[self.urls],
             )
         )
 

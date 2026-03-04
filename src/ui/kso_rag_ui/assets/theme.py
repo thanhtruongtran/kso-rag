@@ -152,8 +152,8 @@ class KsoRag(Soft):
     def __init__(
         self,
         *,
-        primary_hue: colors.Color | str = colors.emerald,
-        secondary_hue: colors.Color | str = colors.blue,
+        primary_hue: colors.Color | str = colors.sky,
+        secondary_hue: colors.Color | str = colors.slate,
         neutral_hue: colors.Color | str = gray,
         spacing_size: sizes.Size | str = sizes.spacing_md,
         radius_size: sizes.Size | str = sizes.radius_md,

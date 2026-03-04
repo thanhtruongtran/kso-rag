@@ -261,7 +261,7 @@ KSO_RAG_LLMS["claude"] = {
 KSO_RAG_LLMS["google"] = {
     "spec": {
         "__type__": "kso_rag_core.llms.chats.LCGeminiChat",
-        "model_name": "gemini-1.5-flash",
+        "model_name": "gemini-2.5-flash",
         "api_key": GOOGLE_API_KEY,
     },
     "default": not IS_OPENAI_DEFAULT,

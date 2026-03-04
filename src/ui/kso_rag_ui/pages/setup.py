@@ -262,7 +262,7 @@ class SetupPage(BasePage):
                     name="google",
                     spec={
                         "__type__": "kso_rag_core.llms.chats.LCGeminiChat",
-                        "model_name": "gemini-1.5-flash",
+                        "model_name": "gemini-2.5-flash",
                         "api_key": google_api_key,
                     },
                     default=True,

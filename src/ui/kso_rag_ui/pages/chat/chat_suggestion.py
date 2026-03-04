@@ -22,7 +22,7 @@ class ChatSuggestion(BasePage):
         self.chat_samples = [[each] for each in self.CHAT_SAMPLES]
         with gr.Accordion(
             label="Chat Suggestion",
-            visible=getattr(flowsettings, "KSO_RAG_FEATURE_CHAT_SUGGESTION", False),
+            visible=True,
         ) as self.accordion:
             self.default_example = gr.State(
                 value=self.chat_samples,

@@ -207,9 +207,7 @@ class ChatPage(BasePage):
         self._preview_links = gr.State(value=None)
         self._reasoning_type = gr.State(value=None)
         self._conversation_renamed = gr.State(value=False)
-        self._use_suggestion = gr.State(
-            value=getattr(flowsettings, "KSO_RAG_FEATURE_CHAT_SUGGESTION", False)
-        )
+        self._use_suggestion = gr.State(value=True)
         self._info_panel_expanded = gr.State(value=True)
         self._command_state = gr.State(value=None)
         self._user_api_key = gr.Text(value="", visible=False)
@@ -270,34 +268,6 @@ class ChatPage(BasePage):
 
                 self.chat_suggestion = ChatSuggestion(self._app)
 
-                if len(self._app.index_manager.indices) > 0:
-                    quick_upload_label = (
-                        "Quick Upload" if not KSO_RAG_DEMO_MODE else "Or input new paper URL"
-                    )
-
-                    with gr.Accordion(label=quick_upload_label) as _:
-                        self.quick_file_upload_status = gr.Markdown()
-                        if not KSO_RAG_DEMO_MODE:
-                            self.quick_file_upload = File(
-                                file_types=list(KSO_RAG_DEFAULT_FILE_EXTRACTORS.keys()),
-                                file_count="multiple",
-                                container=True,
-                                show_label=False,
-                                elem_id="quick-file",
-                            )
-                        self.quick_urls = gr.Textbox(
-                            placeholder=(
-                                "Or paste URLs"
-                                if not KSO_RAG_DEMO_MODE
-                                else "Paste Arxiv URLs\n(https://arxiv.org/abs/xxx)"
-                            ),
-                            lines=1,
-                            container=False,
-                            show_label=False,
-                            elem_id=(
-                                "quick-url" if not KSO_RAG_DEMO_MODE else "quick-url-demo"
-                            ),
-                        )
 
                 if not KSO_RAG_DEMO_MODE:
                     self.report_issue = ReportIssue(self._app)
@@ -819,25 +789,6 @@ class ChatPage(BasePage):
             show_progress="hidden",
         )
 
-        def toggle_chat_suggestion(current_state):
-            return current_state, gr.update(visible=current_state)
-
-        def raise_error_on_state(state):
-            if not state:
-                raise ValueError("Chat suggestion disabled")
-
-        self.chat_control.cb_suggest_chat.change(
-            fn=toggle_chat_suggestion,
-            inputs=[self.chat_control.cb_suggest_chat],
-            outputs=[self._use_suggestion, self.followup_questions_ui],
-            show_progress="hidden",
-        ).then(
-            fn=raise_error_on_state,
-            inputs=[self._use_suggestion],
-            show_progress="hidden",
-        ).success(
-            **onSuggestChatEvent
-        )
         self.chat_control.conversation_id.change(
             lambda: gr.update(visible=False),
             outputs=self.plot_panel,
@@ -1061,7 +1012,6 @@ class ChatPage(BasePage):
                 fn=self.chat_control.toggle_demo_login_visibility,
                 inputs=[self._user_api_key],
                 outputs=[
-                    self.chat_control.cb_suggest_chat,
                     self.chat_control.btn_new,
                     self.chat_control.btn_demo_logout,
                     self.chat_control.btn_demo_login,

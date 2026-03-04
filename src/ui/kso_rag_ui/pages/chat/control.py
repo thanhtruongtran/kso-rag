@@ -1,5 +1,4 @@
 import logging
-import os
 from copy import deepcopy
 
 import gradio as gr
@@ -17,9 +16,6 @@ logger = logging.getLogger(__name__)
 
 KSO_RAG_DEMO_MODE = getattr(flowsettings, "KSO_RAG_DEMO_MODE", False)
 KSO_RAG_SSO_ENABLED = getattr(flowsettings, "KSO_RAG_SSO_ENABLED", False)
-ASSETS_DIR = "assets/icons"
-if not os.path.isdir(ASSETS_DIR):
-    ASSETS_DIR = "src/ui/kso_rag_ui/kso_rag_ui/assets/icons"
 
 
 logout_js = """
@@ -54,24 +50,21 @@ class ConversationControl(BasePage):
             title_text = "Conversations" if not KSO_RAG_DEMO_MODE else "kso-rag Papers"
             gr.Markdown("## {}".format(title_text))
             self.btn_toggle_dark_mode = gr.Button(
-                value="",
-                icon=f"{ASSETS_DIR}/dark_mode.svg",
+                value="🌙",
                 scale=1,
                 size="sm",
                 elem_classes=["no-background", "body-text-color"],
                 elem_id="toggle-dark-button",
             )
             self.btn_chat_expand = gr.Button(
-                value="",
-                icon=f"{ASSETS_DIR}/expand.svg",
+                value="⤢",
                 scale=1,
                 size="sm",
                 elem_classes=["no-background", "body-text-color"],
                 elem_id="chat-expand-button",
             )
             self.btn_info_expand = gr.Button(
-                value="",
-                icon=f"{ASSETS_DIR}/expand.svg",
+                value="⤢",
                 min_width=2,
                 scale=1,
                 size="sm",
@@ -100,43 +93,32 @@ class ConversationControl(BasePage):
         )
 
         with gr.Row() as self._new_delete:
-            self.cb_suggest_chat = gr.Checkbox(
-                value=False,
-                label="Suggest chat",
-                min_width=10,
-                scale=6,
-                elem_id="suggest-chat-checkbox",
-                container=False,
-                visible=not KSO_RAG_DEMO_MODE,
-            )
             self.cb_is_public = gr.Checkbox(
                 value=False,
                 label="Share this conversation",
                 elem_id="is-public-checkbox",
                 container=False,
+                scale=6,
                 visible=not KSO_RAG_DEMO_MODE and not KSO_RAG_SSO_ENABLED,
             )
 
             if not KSO_RAG_DEMO_MODE:
                 self.btn_conversation_rn = gr.Button(
-                    value="",
-                    icon=f"{ASSETS_DIR}/rename.svg",
+                    value="✏",
                     min_width=2,
                     scale=1,
                     size="sm",
                     elem_classes=["no-background", "body-text-color"],
                 )
                 self.btn_del = gr.Button(
-                    value="",
-                    icon=f"{ASSETS_DIR}/delete.svg",
+                    value="🗑",
                     min_width=2,
                     scale=1,
                     size="sm",
                     elem_classes=["no-background", "body-text-color"],
                 )
                 self.btn_new = gr.Button(
-                    value="",
-                    icon=f"{ASSETS_DIR}/new.svg",
+                    value="＋",
                     min_width=2,
                     scale=1,
                     size="sm",
@@ -451,12 +433,10 @@ class ConversationControl(BasePage):
             return [
                 gr.update(visible=True),
                 gr.update(visible=True),
-                gr.update(visible=True),
                 gr.update(visible=False),
             ]
         else:
             return [
-                gr.update(visible=False),
                 gr.update(visible=False),
                 gr.update(visible=False),
                 gr.update(visible=True),

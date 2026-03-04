@@ -43,7 +43,7 @@ demo.queue().launch(
     server_port=GRADIO_SERVER_PORT,
     inbrowser=INBROWSER,
     allowed_paths=[
-        "src/ui/kso_rag_ui/assets",
+        os.path.join(os.path.dirname(__file__), "src", "ui", "kso_rag_ui", "assets"),
         GRADIO_TEMP_DIR,
     ],
     share=KSO_RAG_GRADIO_SHARE or (GRADIO_SERVER_NAME == "0.0.0.0"),

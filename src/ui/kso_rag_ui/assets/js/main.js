@@ -79,16 +79,6 @@ function run() {
     report_div.insertBefore(share_conv_checkbox, report_div.querySelector("button"));
   }
 
-  // create slider toggle
-  const is_public_checkbox = document.getElementById("suggest-chat-checkbox");
-  const label_element = is_public_checkbox.getElementsByTagName("label")[0];
-  const checkbox_span = is_public_checkbox.getElementsByTagName("span")[0];
-  new_div = document.createElement("div");
-
-  label_element.classList.add("switch");
-  is_public_checkbox.appendChild(checkbox_span);
-  label_element.appendChild(new_div);
-
   // clpse
   globalThis.clpseFn = (id) => {
     var obj = document.getElementById("clpse-btn-" + id);
