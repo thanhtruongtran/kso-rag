@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools >= 61.0", "wheel", "setuptools-git-versioning>=2.0,<3"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = false
+packages.find.include = []
+
+[tool.setuptools-git-versioning]
+enabled = true
+dev_template = "{tag}"
+dirty_template = "{tag}"
+tag_filter = "v?\\d+(\\.\\d+)*.*"
+
+[project]
+name = "kso-rag-app"
+dynamic = ["version"]
+requires-python = ">= 3.10"
+description = "kso-rag App"
+dependencies = [
+    "kso-rag-core",
+    "kso-rag-ui"
+]
+authors = [
+    { name = "@truongtt", email = "truongtt@kaopiz.com" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[tool.uv.sources]
+"kso-rag-core" = { workspace = true }
+"kso-rag-ui" = { workspace = true }
+
+# uv workspace configuration
+[tool.uv.workspace]
+members = ["src/core", "src/ui"]
+
+[dependency-groups]
+dev = [
+    "black",
+    "coverage",  
+    "flake8",
+    "ipython",
+    "pre-commit",
+    "pytest",
+    "pytest-mock",
+    "sphinx"
+]
+
+[tool.codespell]
+skip = "*.js,*.css,*.map"
+# `llm` abbreviation for large language models
+ignore-words-list = "llm,fo"
+quiet-level = 3
+check-filenames = ""
+
+[tool.isort]
+known_first_party = ["kso_rag_core", "kso_rag_ui"]

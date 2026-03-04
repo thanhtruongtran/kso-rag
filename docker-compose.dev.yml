@@ -1,0 +1,28 @@
+# Development override: mount source so code changes apply without rebuilding.
+# Usage:
+#   docker compose -f docker-compose.dev.yml up --build   # first time or when deps change
+#   docker compose -f docker-compose.dev.yml up            # later: no rebuild, code from host
+services:
+  app:
+    image: kso-rag
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: full
+    ports:
+      - "7860:7860"
+    environment:
+      - GRADIO_SERVER_NAME=0.0.0.0
+      - GRADIO_SERVER_PORT=7860
+    volumes:
+      # Mount source so you can edit code without rebuilding
+      - ./src:/app/src
+      - ./app.py:/app/app.py
+      - ./launch.sh:/app/launch.sh
+      # Persist data
+      - kso_rag_data:/app/kso_rag_data
+    # Override entrypoint to allow shell if needed
+    # command: ["sh", "-c", "sleep 1 && sh /app/launch.sh"]
+
+volumes:
+  kso_rag_data:

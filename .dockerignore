@@ -1,0 +1,16 @@
+.github/
+.git/
+.mypy_cache/
+__pycache__/
+kso_rag_data
+env/
+.pre-commit-config.yaml
+.commitlintrc
+.gitignore
+.gitattributes
+README.md
+*.zip
+*.sh
+
+!/launch.sh
+!scripts/download_pdfjs.sh
