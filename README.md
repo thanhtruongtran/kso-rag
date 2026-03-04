@@ -1,69 +1,60 @@
-## Key Features
-
-- **Host your own document QA (RAG) web-UI**: Support multi-user login, organize your files in private/public collections, collaborate and share your favorite chat with others.
-
-- **Organize your LLM & Embedding models**: Support both local LLMs & popular API providers (OpenAI, Azure, Ollama, Groq).
-
-- **Hybrid RAG pipeline**: Sane default RAG pipeline with hybrid (full-text & vector) retriever and re-ranking to ensure best retrieval quality.
-
-- **Multi-modal QA support**: Perform Question Answering on multiple documents with figures and tables support. Support multi-modal document parsing (selectable options on UI).
-
-- **Advanced citations with document preview**: By default the system will provide detailed citations to ensure the correctness of LLM answers. View your citations (incl. relevant score) directly in the _in-browser PDF viewer_ with highlights. Warning when retrieval pipeline return low relevant articles.
-
-- **Support complex reasoning methods**: Use question decomposition to answer your complex/multi-hop question. Support agent-based reasoning with `ReAct`, `ReWOO` and other agents.
-
-- **Configurable settings UI**: You can adjust most important aspects of retrieval & generation process on the UI (incl. prompts).
-
-- **Extensible**: Being built on Gradio, you are free to customize or add any UI elements as you like. Also, we aim to support multiple strategies for document indexing & retrieval. `GraphRAG` indexing pipeline is provided as an example.
-
 ## Installation
-
-### System requirements
-
-1. [Python](https://www.python.org/downloads/) >= 3.10
-2. [Docker](https://www.docker.com/): optional, if you [install with Docker](#with-docker-recommended)
-3. [Unstructured](https://docs.unstructured.io/open-source/installation/full-installation#full-installation) if you want to process files other than `.pdf`, `.html`, `.mhtml`, and `.xlsx` documents. Installation steps differ depending on your operating system. Please visit the link and follow the specific instructions provided there.
 
 ### With Docker (recommended)
 
 1. Build the Docker image from this repository:
 
    ```bash
-   # from the repository root
-   docker build -t kso-rag:lite --target lite .
-   docker build -t kso-rag:full --target full .
-   docker build -t kso-rag:ollama --target ollama .
+   # from the repository root (build the default \"full\" image)
+   docker build -t kso-rag .
    ```
 
-2. Run the image (example: `full` image):
+2. (Optional) If you want an image with Ollama preinstalled, build the `ollama` target:
+
+   ```bash
+   docker build -t kso-rag-ollama --target ollama .
+   ```
+
+3. Prepare environment and data directories on the host:
+
+   ```bash
+   # copy example env and edit it (API keys, etc.)
+   cp .env.example .env
+   # data directory (will be mounted into the container)
+   mkdir -p ./kso_rag_data
+   ```
+
+4. Run the image:
 
    ```bash
    docker run \
+     --env-file .env \
      -e GRADIO_SERVER_NAME=0.0.0.0 \
      -e GRADIO_SERVER_PORT=7860 \
      -v ./kso_rag_data:/app/kso_rag_data \
      -p 7860:7860 -it --rm \
-     kso-rag:full
+     kso-rag
    ```
 
-3. We currently support and test two platforms: `linux/amd64` and `linux/arm64` (for newer Mac). You can specify the platform by passing `--platform` in the `docker run` command. For example:
+5. Platforms: images are tested on `linux/amd64` and `linux/arm64` (newer Mac). To force a platform:
 
    ```bash
    docker run \
+     --env-file .env \
      -e GRADIO_SERVER_NAME=0.0.0.0 \
      -e GRADIO_SERVER_PORT=7860 \
      -v ./kso_rag_data:/app/kso_rag_data \
      -p 7860:7860 -it --rm \
      --platform linux/arm64 \
-     kso-rag:lite
+     kso-rag
    ```
 
-4. Once everything is set up correctly, you can go to `http://localhost:7860/` to access the WebUI.
+6. Once everything is set up correctly, open `http://localhost:7860/` in your browser to access the Web UI.
 
 #### Faster builds when developing
 
 - **Use BuildKit and cache:**  
-  `DOCKER_BUILDKIT=1 docker build --ssh default -t kso-rag:full --target full .`  
+  `DOCKER_BUILDKIT=1 docker build --ssh default -t kso-rag .`  
   Pip cache is reused between builds.
 
 - **Layer order:** The Dockerfile copies dependency files first and app code last. When you only change files outside `src/` (e.g. `launch.sh`, `app.py`), the heavy `pip install` layer stays cached. When you change code inside `src/core` or `src/ui`, that layer is invalidated and pip runs again.
@@ -77,13 +68,11 @@
 
 ### Without Docker
 
-#### Option 1: Using uv (Recommended for faster installation)
-
 1. Clone the repository and run the uv installation script:
 
    ```shell
    # clone this repo (replace with your own repository URL)
-   git clone https://github.com/YOUR_ORG/kso-rag
+   git clone "link_repo"
    cd kso-rag
 
    # run the uv installation script (installs uv automatically if not present)
@@ -96,56 +85,6 @@
    - Install all dependencies using uv (significantly faster than conda/pip)
    - Set up PDF.js viewer
    - Launch the application
-
-#### Option 2: Manual Installation (Step-by-step)
-
-**Important**: Install `pyparsing<3.1.0` first to avoid compatibility issues with `httplib2`.
-
-1. Create a virtual environment:
-
-   ```shell
-   python3.10 -m venv .venv
-   source .venv/bin/activate  # macOS/Linux
-   # hoặc
-   .venv\Scripts\activate  # Windows
-   ```
-
-2. Install dependencies in the correct order:
-
-   ```shell
-   # Install pyparsing first (required for httplib2 compatibility)
-   pip install "pyparsing<3.1.0"
-   
-   # Install core package
-   pip install -e "src/core[all]"
-   
-   # Install UI package
-   pip install -e "src/ui"
-   
-   # Fix known version conflicts
-   pip uninstall hnswlib chroma-hnswlib -y 2>/dev/null || true
-   pip install chroma-hnswlib
-   ```
-
-3. (Optional) Setup PDF.js viewer:
-
-   ```shell
-   bash scripts/download_pdfjs.sh src/ui/kso_rag_ui/kso_rag_ui/assets/prebuilt/pdfjs-4.0.379-dist
-   ```
-
-4. Create a `.env` file in the root of this project. Use `.env.example` as a template
-
-5. Run the application:
-
-   ```shell
-   python app.py
-   ```
-
-   The app will open automatically in your browser at `http://localhost:7860`
-
-   **Default credentials:**
-   - Username: `admin`
-   - Password: `admin`
 
 <!--
 ### Setup GraphRAG
