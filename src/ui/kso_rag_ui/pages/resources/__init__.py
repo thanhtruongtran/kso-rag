@@ -55,10 +55,8 @@ class ResourcesTab(BasePage):
             )
 
     def toggle_user_management(self, user_id):
-        """Show/hide the user management, depending on the user's role"""
-        with Session(engine) as session:
-            user = session.exec(select(User).where(User.id == user_id)).first()
-            if user and user.admin:
-                return gr.update(visible=True)
+        """Show/hide the user management, depending on the user's role.
 
-            return gr.update(visible=False)
+        In this deployment we always keep the Users tab hidden.
+        """
+        return gr.update(visible=False)

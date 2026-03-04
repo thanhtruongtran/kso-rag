@@ -125,7 +125,9 @@ class SettingsPage(BasePage):
                 elem_id="save-setting-btn",
             )
         if self._app.f_user_management:
-            with gr.Tab("User settings"):
+            # Keep user management components for internal logic,
+            # but hide them from the UI.
+            with gr.Group(visible=False):
                 self.user_tab()
 
         self.app_tab()
