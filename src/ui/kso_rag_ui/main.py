@@ -5,7 +5,6 @@ from theflow.settings import settings as flowsettings
 from kso_rag_ui.app import BaseApp
 from kso_rag_ui.pages.chat import ChatPage
 from kso_rag_ui.pages.help import HelpPage
-from kso_rag_ui.pages.resources import ResourcesTab
 from kso_rag_ui.pages.settings import SettingsPage
 from kso_rag_ui.pages.setup import SetupPage
 
@@ -93,16 +92,6 @@ class App(BaseApp):
                             setattr(self, f"_index_{index.id}", page)
 
             if not KSO_RAG_DEMO_MODE:
-                if not KSO_RAG_SSO_ENABLED:
-                    with gr.Tab(
-                        "Resources",
-                        elem_id="resources-tab",
-                        id="resources-tab",
-                        visible=not self.f_user_management,
-                        elem_classes=["fill-main-area-height", "scrollable"],
-                    ) as self._tabs["resources-tab"]:
-                        self.resources_page = ResourcesTab(self)
-
                 with gr.Tab(
                     "Settings",
                     elem_id="settings-tab",

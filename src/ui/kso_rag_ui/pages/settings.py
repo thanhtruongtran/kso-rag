@@ -3,11 +3,13 @@ import hashlib
 import gradio as gr
 from kso_rag_ui.app import BasePage
 from kso_rag_ui.components import reasonings
+from kso_rag_ui.pages.resources import ResourcesTab
 from kso_rag_ui.db.models import Settings, User, engine
 from sqlmodel import Session, select
 from theflow.settings import settings as flowsettings
 
 KSO_RAG_SSO_ENABLED = getattr(flowsettings, "KSO_RAG_SSO_ENABLED", False)
+KSO_RAG_DEMO_MODE = getattr(flowsettings, "KSO_RAG_DEMO_MODE", False)
 
 
 signout_js = """
@@ -129,6 +131,17 @@ class SettingsPage(BasePage):
         self.app_tab()
         self.index_tab()
         self.reasoning_tab()
+        self.resources_tab()
+
+    def resources_tab(self):
+        # Keep the same visibility behavior as the old top-level Resources tab:
+        # only show when not in demo mode and SSO is disabled.
+        if KSO_RAG_DEMO_MODE or KSO_RAG_SSO_ENABLED:
+            return
+
+        with gr.Tab("Resources"):
+            # Reuse the existing ResourcesTab page, but nest it under Settings.
+            self.resources_page = ResourcesTab(self._app)
 
     def on_subscribe_public_events(self):
         """
