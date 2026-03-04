@@ -105,13 +105,24 @@ KSO_RAG_DOCSTORE = {
     "__type__": "kso_rag_core.storages.LanceDBDocumentStore",
     "path": str(KSO_RAG_USER_DATA_DIR / "docstore"),
 }
-KSO_RAG_VECTORSTORE = {
-    # "__type__": "kso_rag_core.storages.LanceDBVectorStore",
-    "__type__": "kso_rag_core.storages.ChromaVectorStore",
-    # "__type__": "kso_rag_core.storages.MilvusVectorStore",
-    # "__type__": "kso_rag_core.storages.QdrantVectorStore",
-    "path": str(KSO_RAG_USER_DATA_DIR / "vectorstore"),
-}
+# Vector store: Chroma (default) or Milvus. Set MILVUS_URI in .env to use Milvus.
+# - Local file: MILVUS_URI=milvus.db
+# - Milvus server: MILVUS_URI=http://localhost:19530
+_MILVUS_URI = config("MILVUS_URI", default="")
+if _MILVUS_URI:
+    KSO_RAG_VECTORSTORE = {
+        "__type__": "kso_rag_core.storages.MilvusVectorStore",
+        "uri": _MILVUS_URI,
+        "path": str(KSO_RAG_USER_DATA_DIR / "vectorstore"),
+    }
+else:
+    KSO_RAG_VECTORSTORE = {
+        # "__type__": "kso_rag_core.storages.LanceDBVectorStore",
+        "__type__": "kso_rag_core.storages.ChromaVectorStore",
+        # "__type__": "kso_rag_core.storages.MilvusVectorStore",
+        # "__type__": "kso_rag_core.storages.QdrantVectorStore",
+        "path": str(KSO_RAG_USER_DATA_DIR / "vectorstore"),
+    }
 KSO_RAG_LLMS = {}
 KSO_RAG_EMBEDDINGS = {}
 KSO_RAG_RERANKINGS = {}

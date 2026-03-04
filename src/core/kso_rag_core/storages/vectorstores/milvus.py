@@ -36,6 +36,9 @@ class MilvusVectorStore(LlamaIndexVectorStore):
         self._path = kwargs.get("path", None)
         self._inited = False
 
+    # Default embedding dim when not provided (e.g. for count/delete before any add)
+    _DEFAULT_DIM = 768
+
     def _lazy_init(self, dim: Optional[int] = None):
         """
         Lazy init the client.
@@ -46,7 +49,9 @@ class MilvusVectorStore(LlamaIndexVectorStore):
             dim: Dimension of the vectors.
         """
         if not self._inited:
-            if os.path.isdir(self._path) and not self._uri.startswith("http"):
+            if dim is None:
+                dim = self._DEFAULT_DIM
+            if self._path and os.path.isdir(self._path) and not self._uri.startswith("http"):
                 uri = os.path.join(self._path, self._uri)
             else:
                 uri = self._uri
@@ -55,7 +60,7 @@ class MilvusVectorStore(LlamaIndexVectorStore):
                 token=self._token,
                 collection_name=self._collection_name,
                 dim=dim,
-                **self._kwargs,
+                **{k: v for k, v in self._kwargs.items() if k != "path"},
             )
             from llama_index.vector_stores.milvus import (
                 MilvusVectorStore as LIMilvusVectorStore,

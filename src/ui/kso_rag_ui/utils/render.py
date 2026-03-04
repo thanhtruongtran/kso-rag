@@ -113,6 +113,7 @@ class Render:
             except Exception as e:
                 print(e)
                 highlight_text = text
+                phrase = "true"
         else:
             phrase = "true"
 
