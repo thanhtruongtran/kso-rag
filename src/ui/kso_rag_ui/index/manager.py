@@ -187,10 +187,12 @@ class IndexManager:
             if not self.exists(name=index["name"]):
                 self.build_index(**index)
 
+        allowed_types = {idx["index_type"] for idx in settings.KSO_RAG_INDICES}
         with Session(engine) as sess:
             index_defs = sess.exec(select(Index))
             for index_def in index_defs:
-                self.start_index(**index_def.model_dump())
+                if index_def.index_type in allowed_types:
+                    self.start_index(**index_def.model_dump())
 
     @property
     def indices(self):
