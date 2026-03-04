@@ -82,8 +82,8 @@
 1. Clone the repository and run the uv installation script:
 
    ```shell
-   # clone this repo
-   git clone https://github.com/Cinnamon/kso-rag
+   # clone this repo (replace with your own repository URL)
+   git clone https://github.com/YOUR_ORG/kso-rag
    cd kso-rag
 
    # run the uv installation script (installs uv automatically if not present)
@@ -159,7 +159,7 @@
 <summary>Setup Nano GRAPHRAG</summary>
 
 - Install nano-GraphRAG: `pip install nano-graphrag`
-- `nano-graphrag` install might introduce version conflicts, see [this issue](https://github.com/Cinnamon/kso-rag/issues/440)
+- `nano-graphrag` install might introduce version conflicts (see project issues for workarounds)
   - To quickly fix: `pip uninstall hnswlib chroma-hnswlib && pip install chroma-hnswlib`
 - Launch kso-rag with `USE_NANO_GRAPHRAG=true` environment variable.
 - Set your default LLM & Embedding models in Resources setting and it will be recognized automatically from NanoGraphRAG.
@@ -171,7 +171,7 @@
 <summary>Setup LIGHTRAG</summary>
 
 - Install LightRAG: `pip install git+https://github.com/HKUDS/LightRAG.git`
-- `LightRAG` install might introduce version conflicts, see [this issue](https://github.com/Cinnamon/kso-rag/issues/440)
+- `LightRAG` install might introduce version conflicts (see project issues for workarounds)
   - To quickly fix: `pip uninstall hnswlib chroma-hnswlib && pip install chroma-hnswlib`
 - Launch kso-rag with `USE_LIGHTRAG=true` environment variable.
 - Set your default LLM & Embedding models in Resources setting and it will be recognized automatically from LightRAG.
@@ -302,7 +302,7 @@ This file provides another way to configure your models and credentials.
 
       - Set the model names on web UI and make it as default:
 
-        ![Models](https://raw.githubusercontent.com/Cinnamon/kso-rag/main/docs/images/models.png)
+        ![Models](docs/images/models.png)
 
     - Using `GGUF` with `llama-cpp-python`
 

@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 
 import gradio as gr
+from theflow.settings import settings
 from theflow.storage import storage
 
 from kso_rag_core.chatbot import ChatConversation
@@ -12,7 +13,17 @@ from kso_rag_core.contribs.promptui.ui.blocks import ChatBlock
 
 from ..logs import ResultLog
 
-USAGE_INSTRUCTION = """## How to use:
+
+def _usage_instruction() -> str:
+    repo = getattr(settings, "KSO_RAG_GITHUB_REPO", "") or ""
+    support = (
+        f"- PromptUI instruction: https://github.com/{repo}/wiki/Utilities#prompt-engineering-ui\n"
+        f"- Create bug fix and make PR at: https://github.com/{repo}\n"
+        f"- Follow installation at: https://github.com/{repo}/"
+        if repo
+        else "- See project documentation for support and contribution."
+    )
+    return f"""## How to use:
 
 1. Set the desired parameters.
 2. Click "New chat" to start a chat session with the supplied parameters. This
@@ -32,14 +43,11 @@ USAGE_INSTRUCTION = """## How to use:
 
 In case of errors, you can:
 
-- PromptUI instruction:
-    https://github.com/Cinnamon/kso-rag/wiki/Utilities#prompt-engineering-ui
-- Create bug fix and make PR at: https://github.com/Cinnamon/kso-rag
-- Ping any of @john @tadashi @ian @jacky in Slack channel #llm-productization
+{support}
 
 ## Contribute:
 
-- Follow installation at: https://github.com/Cinnamon/kso-rag/
+{support}
 """
 
 
@@ -99,7 +107,7 @@ def construct_chat_ui(
     with gr.Blocks(analytics_enabled=False, title="Welcome to PromptUI") as demo:
         sess.render()
         with gr.Accordion(label="HOW TO", open=False):
-            gr.Markdown(USAGE_INSTRUCTION)
+            gr.Markdown(_usage_instruction())
         with gr.Row():
             run_btn = gr.Button("New chat")
             run_btn.click(

@@ -173,15 +173,20 @@ def makedoc(module, output, separation_level):
 def start_project(template):
     """Start a project from a template.
 
-    Important: the value for --template corresponds to the name of the template folder,
-    which is located at https://github.com/Cinnamon/kso-rag/tree/main/templates
-    The default value is "project-default", which should work when you are starting a
-    client project.
+    Important: the value for --template corresponds to the name of the template folder.
+    Set KSO_RAG_GITHUB_REPO (e.g. your-org/kso-rag) in .env so templates are fetched
+    from your repo: https://github.com/<KSO_RAG_GITHUB_REPO>/tree/main/templates
     """
 
+    from theflow.settings import settings
+
+    repo = getattr(settings, "KSO_RAG_GITHUB_REPO", "") or ""
+    if not repo:
+        print("Error: Set KSO_RAG_GITHUB_REPO in .env (e.g. your-org/kso-rag) to use templates.")
+        return
     print("Retrieving template...")
     os.system(
-        "cookiecutter git@github.com:Cinnamon/kso-rag.git "
+        f"cookiecutter git@github.com:{repo}.git "
         f"--directory='templates/{template}'"
     )
 

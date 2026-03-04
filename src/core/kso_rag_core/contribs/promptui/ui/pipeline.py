@@ -6,6 +6,7 @@ from typing import Any, Dict
 
 import gradio as gr
 import pandas as pd
+from theflow.settings import settings
 from theflow.storage import storage
 
 from kso_rag_core.contribs.promptui.base import get_component
@@ -13,7 +14,17 @@ from kso_rag_core.contribs.promptui.export import export
 
 from ..logs import ResultLog
 
-USAGE_INSTRUCTION = """## How to use:
+
+def _usage_instruction() -> str:
+    repo = getattr(settings, "KSO_RAG_GITHUB_REPO", "") or ""
+    support = (
+        f"- PromptUI instruction: https://github.com/{repo}/wiki/Utilities#prompt-engineering-ui\n"
+        f"- Create bug fix and make PR at: https://github.com/{repo}\n"
+        f"- Follow installation at: https://github.com/{repo}/"
+        if repo
+        else "- See project documentation for support and contribution."
+    )
+    return f"""## How to use:
 
 1. Set the desired parameters.
 2. Set the desired inputs.
@@ -27,14 +38,11 @@ USAGE_INSTRUCTION = """## How to use:
 
 In case of errors, you can:
 
-- PromptUI instruction:
-    https://github.com/Cinnamon/kso-rag/wiki/Utilities#prompt-engineering-ui
-- Create bug fix and make PR at: https://github.com/Cinnamon/kso-rag
-- Ping any of @john @tadashi @ian @jacky in Slack channel #llm-productization
+{support}
 
 ## Contribute:
 
-- Follow installation at: https://github.com/Cinnamon/kso-rag/
+{support}
 """
 
 
@@ -84,7 +92,7 @@ def construct_pipeline_ui(
     temp = gr.Tab
     with gr.Blocks(analytics_enabled=False, title="Welcome to PromptUI") as demo:
         with gr.Accordion(label="HOW TO", open=False):
-            gr.Markdown(USAGE_INSTRUCTION)
+            gr.Markdown(_usage_instruction())
         with gr.Accordion(label="Params History", open=False):
             with gr.Row():
                 save_btn = gr.Button("Save params")

@@ -5,6 +5,8 @@ activate*
 activate/*
 kso_rag_ui-env*
 .env
+# UI prebuilt assets (e.g. PDF.js) - generated/large, not tracked
+src/ui/kso_rag_ui/kso_rag_ui/
 
 ### Emacs ###
 # -*- mode: gitignore; -*-
@@ -475,6 +477,7 @@ doc_env/
 
 # application data
 kso_rag_ui_app_data/
+kso_rag_data/
 gradio_tmp/
 
 # test

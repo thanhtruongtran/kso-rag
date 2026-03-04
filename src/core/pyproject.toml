@@ -30,6 +30,7 @@ dependencies = [
     "fastapi<=0.112.1",
     "gradio>=4.42.0,<5",
     "html2text==2024.2.26",
+    "huggingface_hub>=0.20.0,<0.25.0",
     "langchain>=0.1.16,<0.2.16",
     "langchain-community>=0.0.34,<=0.2.11",
     "langchain-openai>=0.1.4,<0.2.0",

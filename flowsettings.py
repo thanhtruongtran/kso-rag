@@ -16,6 +16,14 @@ this_dir = Path(this_file).parent
 # change this if your app use a different name
 KSO_RAG_PACKAGE_NAME = "kso-rag-app"
 
+# GitHub repo for your own build (e.g. "your-org/kso-rag"). Used for docs, changelogs, templates.
+# Leave empty to use local docs only and skip remote links.
+KSO_RAG_GITHUB_REPO = config("KSO_RAG_GITHUB_REPO", default="")
+
+# Tunnel base URL for promptui share (e.g. "https://{appname}.promptui.dm.example.com").
+# Used when generating the share link; set to your own tunnel endpoint.
+KSO_RAG_TUNNEL_BASE_URL = config("KSO_RAG_TUNNEL_BASE_URL", default="")
+
 KSO_RAG_APP_VERSION = config("KSO_RAG_APP_VERSION", None)
 if not KSO_RAG_APP_VERSION:
     try:

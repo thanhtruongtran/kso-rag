@@ -52,9 +52,8 @@ class Tunnel:
             if resp.status_code == 403:
                 raise OSError(
                     "You do not have permission to setup the tunneling. Please "
-                    "make sure that you are within Cinnamon VPN or within other "
-                    "approved IPs. If this is new server, please contact @channel "
-                    "at #llm-productization to add your IP address"
+                    "make sure that you are within the required VPN or within other "
+                    "approved IPs. Contact your administrator to add your IP address."
                 )
 
             resp.raise_for_status()
@@ -103,4 +102,14 @@ class Tunnel:
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         atexit.register(self.kill)
-        return f"https://{self.appname}.promptui.dm.cinnamon.is"
+        from theflow.settings import settings
+
+        base_url = getattr(
+            settings, "KSO_RAG_TUNNEL_BASE_URL", "https://your-tunnel.example.com"
+        )
+        if not base_url:
+            return ""
+        base_url = base_url.rstrip("/")
+        if "{appname}" in base_url:
+            return base_url.format(appname=self.appname)
+        return f"{base_url}/{self.appname}"

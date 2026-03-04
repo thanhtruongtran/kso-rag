@@ -31,19 +31,26 @@ def download_changelogs(release_url: str) -> str:
         return ""
 
 
+def _default_remote_content_url() -> str:
+    repo = getattr(settings, "KSO_RAG_GITHUB_REPO", "") or ""
+    return f"https://raw.githubusercontent.com/{repo}" if repo else ""
+
+
 class HelpPage:
     def __init__(
         self,
         app,
         doc_dir: str = settings.KSO_RAG_DOC_DIR,
-        remote_content_url: str = "https://raw.githubusercontent.com/Cinnamon/kso-rag",
+        remote_content_url: str | None = None,
         app_version: str | None = settings.KSO_RAG_APP_VERSION,
         changelogs_cache_dir: str
         | Path = (Path(settings.KSO_RAG_APP_DATA_DIR) / "changelogs"),
     ):
         self._app = app
         self.doc_dir = Path(doc_dir)
-        self.remote_content_url = remote_content_url
+        self.remote_content_url = (
+            remote_content_url if remote_content_url is not None else _default_remote_content_url()
+        )
         self.app_version = app_version
         self.changelogs_cache_dir = Path(changelogs_cache_dir)
 
@@ -53,10 +60,12 @@ class HelpPage:
         if about_md_dir.exists():
             with (self.doc_dir / "about.md").open(encoding="utf-8") as fi:
                 about_md = fi.read()
-        else:  # fetch from remote
+        elif self.remote_content_url:
             about_md = get_remote_doc(
                 f"{self.remote_content_url}/v{self.app_version}/docs/about.md"
             )
+        else:
+            about_md = ""
         if about_md:
             with gr.Accordion("About"):
                 if self.app_version:
@@ -83,10 +92,12 @@ class HelpPage:
         if user_guide_md_dir.exists():
             with (self.doc_dir / "usage.md").open(encoding="utf-8") as fi:
                 user_guide_md = fi.read()
-        else:  # fetch from remote
+        elif self.remote_content_url:
             user_guide_md = get_remote_doc(
                 f"{self.remote_content_url}/v{self.app_version}/docs/usage.md"
             )
+        else:
+            user_guide_md = ""
         if user_guide_md:
             with gr.Accordion("User Guide", open=not KSO_RAG_DEMO_MODE):
                 gr.Markdown(user_guide_md)
@@ -99,12 +110,16 @@ class HelpPage:
                 with open(self.changelogs_cache_dir / f"{version}.md", "r") as fi:
                     changelogs = fi.read()
             else:
-                release_url_base = (
-                    "https://api.github.com/repos/Cinnamon/kso-rag/releases"
-                )
-                changelogs = download_changelogs(
-                    release_url=f"{release_url_base}/tags/v{self.app_version}"
-                )
+                repo = getattr(settings, "KSO_RAG_GITHUB_REPO", "") or ""
+                if not repo:
+                    changelogs = ""
+                else:
+                    release_url_base = (
+                        f"https://api.github.com/repos/{repo}/releases"
+                    )
+                    changelogs = download_changelogs(
+                        release_url=f"{release_url_base}/tags/v{self.app_version}"
+                    )
 
                 # cache the changelogs
                 if not self.changelogs_cache_dir.exists():
