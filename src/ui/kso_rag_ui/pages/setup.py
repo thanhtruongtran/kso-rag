@@ -226,7 +226,6 @@ class SetupPage(BasePage):
                     name="cohere",
                     spec={
                         "__type__": "kso_rag_core.rerankings.CohereReranking",
-                        # Use current Cohere multilingual rerank model
                         "model_name": "rerank-multilingual-v3.0",
                         "cohere_api_key": cohere_api_key,
                     },
@@ -272,7 +271,7 @@ class SetupPage(BasePage):
                     name="google",
                     spec={
                         "__type__": "kso_rag_core.embeddings.LCGoogleEmbeddings",
-                        "model": "models/text-embedding-004",
+                        "model": "models/gemini-embedding-001",
                         "google_api_key": google_api_key,
                     },
                     default=True,
