@@ -483,3 +483,8 @@ gradio_tmp/
 # test
 tests/
 ARCHITECTURE.md
+
+# evaluation
+.deepeval/
+# all files start with .deepeval
+.deepeval*

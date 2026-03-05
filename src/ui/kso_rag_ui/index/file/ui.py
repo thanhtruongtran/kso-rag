@@ -189,7 +189,6 @@ class FileIndexPage(BasePage):
         )
 
         with gr.Row():
-
             self.chat_button = gr.Button(
                 "Go to Chat",
                 visible=False,
@@ -204,6 +203,11 @@ class FileIndexPage(BasePage):
                 variant="stop",
                 visible=False,
             )
+            # Evaluation button aligned with other action buttons
+            self.eval_button = gr.Button(
+                "Run Evaluation",
+                visible=False,
+            )
             self.deselect_button = gr.Button(
                 "Close",
                 visible=False,
@@ -215,6 +219,8 @@ class FileIndexPage(BasePage):
                 self.selected_panel = gr.Markdown(self.selected_panel_false)
 
         self.chunks = gr.HTML(visible=False)
+        # Per-document evaluation result panel
+        self.eval_result = gr.Markdown(visible=False)
 
         with gr.Accordion("Advance options", open=False):
             with gr.Row():
@@ -331,7 +337,7 @@ class FileIndexPage(BasePage):
                 with gr.Tab("Files"):
                     self.render_file_list()
 
-                with gr.Tab("Groups"):
+                with gr.Tab("Groups", visible=False):
                     self.render_group_list()
 
     def on_subscribe_public_events(self):
@@ -431,12 +437,16 @@ class FileIndexPage(BasePage):
                             content=content,
                         )
                     )
+        # When a file is selected, show chunk preview, action buttons, and eval button.
+        # Hide eval result until user runs evaluation.
         return (
             gr.update(value="".join(chunks), visible=file_id is not None),
             gr.update(visible=file_id is not None),
             gr.update(visible=file_id is not None),
             gr.update(visible=file_id is not None),
             gr.update(visible=file_id is not None),
+            gr.update(visible=file_id is not None),  # eval_button
+            gr.update(value="", visible=False),  # eval_result
         )
 
     def delete_event(self, file_id):
@@ -751,6 +761,8 @@ class FileIndexPage(BasePage):
                     self.delete_button,
                     self.download_single_button,
                     self.chat_button,
+                    self.eval_button,
+                    self.eval_result,
                 ],
                 show_progress="hidden",
             )
@@ -772,6 +784,8 @@ class FileIndexPage(BasePage):
                 self.delete_button,
                 self.download_single_button,
                 self.chat_button,
+                self.eval_button,
+                self.eval_result,
             ],
             show_progress="hidden",
         )
@@ -784,6 +798,98 @@ class FileIndexPage(BasePage):
                 self._index.get_selector_component_ui().mode,
                 self._app.tabs,
             ],
+        )
+
+        # Per-document evaluation: run DeepEval for selected file (if dataset exists)
+        from kso_rag_ui.eval.doc_eval import run_doc_eval, build_eval_dataset_for_source
+
+        def eval_file(file_id, settings, user_id):
+            if not file_id:
+                return gr.update(value="", visible=False)
+
+            # Use a conventional dataset location per file:
+            #   <APP_DATA_DIR>/eval_<source_id>.jsonl
+            from theflow.settings import settings as flowsettings
+
+            data_dir = getattr(flowsettings, "KSO_RAG_APP_DATA_DIR", ".")
+            dataset_path = Path(data_dir) / "eval_datasets" / f"eval_{file_id}.jsonl"
+
+            # Auto-generate dataset if missing
+            if not dataset_path.exists():
+                try:
+                    build_eval_dataset_for_source(
+                        index=self._index,
+                        source_id=file_id,
+                        out_path=dataset_path,
+                        num_questions=4,
+                    )
+                except Exception as e:  # pragma: no cover - defensive
+                    msg = (
+                        "⚠️ Failed to auto-generate eval dataset for this document.\n\n"
+                        f"Error:\n```text\n{e}\n```"
+                    )
+                    return gr.update(value=msg, visible=True)
+
+            try:
+                summary, results = run_doc_eval(
+                    index=self._index,
+                    source_id=file_id,
+                    dataset_path=str(dataset_path),
+                    settings=settings,
+                    user_id=user_id,
+                )
+            except Exception as e:  # pragma: no cover - defensive
+                return gr.update(
+                    value=f"❌ Evaluation failed:\n\n```text\n{e}\n```",
+                    visible=True,
+                )
+
+            # Load dataset records to display question + ground truth alongside answers
+            records = []
+            try:
+                import json as _json
+
+                with dataset_path.open("r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        records.append(_json.loads(line))
+            except Exception:
+                records = []
+
+            lines = [
+                f"**Total questions**: {summary.total}",
+                f"**Failed**: {summary.failed}",
+                "",
+                "**Average metrics:**",
+            ]
+            for name, val in summary.metrics_avg.items():
+                lines.append(f"- **{name}**: {val:.3f}")
+
+            # Detailed table: question, ground truth, actual answer
+            if records and len(records) == len(results):
+                lines.append("\n---\n")
+                lines.append("### Per-question details")
+                lines.append("")
+                lines.append("| # | Question | Ground truth answer | Actual answer |")
+                lines.append("|---|----------|---------------------|---------------|")
+
+                def _escape(s: str) -> str:
+                    return s.replace("\n", " ").replace("|", "\\|").strip()
+
+                for i, (rec, res) in enumerate(zip(records, results), start=1):
+                    q = _escape(rec.get("question", ""))
+                    gt = _escape(rec.get("ground_truth_answer", ""))
+                    ans = _escape(res.answer or "")
+                    lines.append(f"| {i} | {q} | {gt} | {ans} |")
+
+            return gr.update(value="\n".join(lines), visible=True)
+
+        self.eval_button.click(
+            fn=eval_file,
+            inputs=[self.selected_file_id, self._app.settings_state, self._app.user_id],
+            outputs=[self.eval_result],
         )
 
         if not KSO_RAG_SSO_ENABLED:
@@ -907,6 +1013,8 @@ class FileIndexPage(BasePage):
                 self.delete_button,
                 self.download_single_button,
                 self.chat_button,
+                self.eval_button,
+                self.eval_result,
             ],
             show_progress="hidden",
         )

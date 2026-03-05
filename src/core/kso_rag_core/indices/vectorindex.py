@@ -83,14 +83,34 @@ class VectorIndexing(BaseIndexing):
 
     def add_to_vectorstore(self, docs: list[Document]):
         # in case we want to skip embedding
-        if self.vector_store:
-            print(f"Getting embeddings for {len(docs)} nodes")
-            embeddings = self.embedding(docs)
-            print("Adding embeddings to vector store")
-            self.vector_store.add(
-                embeddings=embeddings,
-                ids=[t.doc_id for t in docs],
+        if not self.vector_store:
+            return
+
+        # Some loaders (e.g. Docling) may produce nodes with empty text/content
+        # which cause certain embedding providers (e.g. Google Generative AI)
+        # to raise errors. Filter them out before calling the embedding model.
+        non_empty_docs: list[Document] = []
+        for d in docs:
+            text = getattr(d, "text", "") or getattr(d, "content", "")
+            if isinstance(text, str) and text.strip():
+                non_empty_docs.append(d)
+
+        if not non_empty_docs:
+            print(
+                "Skipping vectorstore update because all documents have empty content."
             )
+            return
+
+        print(
+            f"Getting embeddings for {len(non_empty_docs)} / {len(docs)} nodes "
+            "(non-empty content only)"
+        )
+        embeddings = self.embedding(non_empty_docs)
+        print("Adding embeddings to vector store")
+        self.vector_store.add(
+            embeddings=embeddings,
+            ids=[t.doc_id for t in non_empty_docs],
+        )
 
     def run(self, text: str | list[str] | Document | list[Document]):
         input_: list[Document] = []

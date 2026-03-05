@@ -100,7 +100,11 @@ dev = [
     "pytest-mock",
     "sphinx",
 ]
-all = ["kso_rag_core[adv,dev]"]
+eval = [
+    "deepeval>=2.0.0",
+    "pandas>=2.2.2,<2.3",
+]
+all = ["kso_rag_core[adv,dev,eval]"]
 
 [project.scripts]
 kso_rag_core = "kso_rag_core.cli:main"

@@ -331,7 +331,8 @@ KSO_RAG_EMBEDDINGS["mistral"] = {
 KSO_RAG_RERANKINGS["cohere"] = {
     "spec": {
         "__type__": "kso_rag_core.rerankings.CohereReranking",
-        "model_name": "rerank-multilingual-v2.0",
+        # Updated to current Cohere multilingual rerank model
+        "model_name": "rerank-multilingual-v3.0",
         "cohere_api_key": config("COHERE_API_KEY", default=""),
     },
     "default": True,
